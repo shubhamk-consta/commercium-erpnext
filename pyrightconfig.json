@@ -1,5 +1,0 @@
-{
-  "stubPath": "typings",
-  "include": ["commercium"],
-  "reportMissingModuleSource": false
-}
