@@ -1,6 +1,10 @@
 import frappe
 from frappe.utils import get_url
 from urllib.parse import urlencode
+from cryptography.fernet import Fernet
+import json
+
+SECRET_KEY = "HdMMKF-LYzAcKK_fBX7JKQjuBUlYyOjgq0GcfwxHacI="
 
 @frappe.whitelist()
 def connect_to_commercium():
@@ -49,11 +53,18 @@ def connect_to_commercium():
             "api_key": api_key,
             "api_secret": api_secret,
             "user_email": user_email,
-            "user_name": user_name
+            "user_name": user_name,
+            "platform": "ERPNEXT"
         }
-        frappe.logger().info("Building Commercium redirect URL with payload: {}".format(payload))
-        redirect_url = "https://commercium.constacloud.com/external-login?{}".format(
-            urlencode(payload)
+
+        # encrypted payload 
+        f = Fernet(SECRET_KEY)
+        json_data = json.dumps(payload)
+        encrypted = f.encrypt(json_data.encode())
+        token = encrypted.decode()
+
+        redirect_url = "http://localhost:3000/bigcommerce-connection?event=signup&platform=ERPNEXT&token={}".format(
+            token
         )
 
         return {
